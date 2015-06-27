@@ -1,0 +1,8 @@
+{
+    "name": "coverage-python",
+    "version": "0.1.0",
+    "main": "lib/main",
+    "description": "Display coverage.py generated coverage information.",
+    "repository": "https://github.com/Holiverh/atom-python-coverage",
+    "license": "MIT"
+}

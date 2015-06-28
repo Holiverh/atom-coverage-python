@@ -1,5 +1,6 @@
 {Emitter, Directory, File} = require("atom")
 PythonCoverage = require("./python.coffee")
+StatusBarView = require("./status-view.coffee")
 
 
 class EditorCoverage
@@ -53,6 +54,7 @@ class Coverage
     constructor: ->
         @plugins = {}  # scope : constructor
         @editors = {}  # Editor : instance
+        @tile = null
         @register("source.python", PythonCoverage)
 
         atom.workspace.observeTextEditors (editor) =>
@@ -66,6 +68,19 @@ class Coverage
     register: (scope, constructor) ->
         console.log("Registering #{constructor} for #{scope}")
         @plugins[scope] = constructor
+
+    attachStatusBar: (statusbar) ->
+        atom.config.observe("coverage-python.statusBarLocation", (location) ->
+            @tile.destroy() if @tile
+            @tile = statusbar["add#{location}Tile"](
+                item: new StatusBarView(),
+                priority: 100,
+            )
+
+            atom.config.observe("coverage-python.statusBarFormat", (format) ->
+                @tile.item.setFormat(format)
+            )
+        )
 
 
 module.exports = Coverage

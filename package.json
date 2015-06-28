@@ -4,5 +4,13 @@
     "main": "lib/main",
     "description": "Display coverage.py generated coverage information.",
     "repository": "https://github.com/Holiverh/atom-python-coverage",
-    "license": "MIT"
+    "license": "MIT",
+    "consumedServices": {
+        "status-bar": {
+            "versions": {"^1.0.0": "consumeStatusBar"}
+        }
+    },
+    "dependencies": {
+        "space-pen": "^5.1.1"
+    }
 }

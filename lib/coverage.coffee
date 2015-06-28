@@ -1,5 +1,51 @@
-{Emitter, Notification, Directory, File} = require("atom")
+{Emitter, Directory, File} = require("atom")
 PythonCoverage = require("./python.coffee")
+
+
+class EditorCoverage
+
+    constructor: (editor, constructor) ->
+        @editor = editor
+        @emitter = new Emitter()
+        @constructor = constructor
+        @instance = new constructor(@)
+        @coverage = {
+            covered: [],
+            missing: [],
+            excluded: [],
+            warning: [],
+        }
+
+    getProjectDirectory: () ->
+        path = new File(@editor.getPath())
+        for raw_project_path in atom.project.getPaths()
+            project_path = new Directory(raw_project_path)
+            if project_path.contains(path.path)
+                return project_path
+
+    getPath: () ->
+        return new File(@editor.getPath())
+
+    setCoverage: (data) ->
+        if data
+            {covered, excluded, missing, warning} = data
+        else
+            atom.notifications.addInfo(
+                "No coverage data for #{@editor.getPath()}",
+                {
+                    dismissable: true,
+                }
+            )
+
+    error: (error) ->
+        atom.notifications.addError(
+            "Error collecting coverage data with
+            **#{@constructor}** for #{@editor.getPath()}",
+            {
+                dismissable: true,
+                detail: error,
+            }
+        )
 
 
 class Coverage
@@ -12,43 +58,10 @@ class Coverage
         atom.workspace.observeTextEditors (editor) =>
             @addEditor(editor)
 
-    rootDirectoryForEditor: (editor) ->
-        path = new File(editor.getPath())
-        for raw_project_path in atom.project.getPaths()
-            project_path = new Directory(raw_project_path)
-            if project_path.contains(path.path)
-                return project_path
-
-    getEmitter: (editor, constructor) ->
-        emitter = new Emitter()
-
-        emitter.on "error", (error) =>
-            atom.notifications.addError(
-                "Error collecting coverage data with
-                **#{constructor}**",
-                {
-                    dismissable: true,
-                    detail: error,
-                }
-            )
-
-        emitter.on "no-data", () ->
-            atom.notifications.addInfo(
-                "No coverage data for #{editor.getPath()}",
-                {
-                    dismissable: true,
-                }
-            )
-
-        return emitter
-
     addEditor: (editor) ->
-        directory = @rootDirectoryForEditor(editor)
         for scope, constructor of @plugins
             if scope == editor.getGrammar().scopeName
-                emitter = @getEmitter(editor, constructor)
-                coverage = new constructor(directory, editor, emitter)
-                @editors[editor] = emitter
+                @editors[editor] = new EditorCoverage(editor, constructor)
 
     register: (scope, constructor) ->
         console.log("Registering #{constructor} for #{scope}")

@@ -3,10 +3,10 @@
 
 class PythonCoverage
 
-    constructor: (directory, editor, emitter) ->
-        @emitter = emitter
+    constructor: (editor) ->
         @editor = editor
-        @data_file = directory.getFile(".coverage")
+        @emitter = editor.emitter
+        @data_file = editor.getProjectDirectory().getFile(".coverage")
         @executable = "/home/oliver/miniconda3/envs/zpp/bin/python"
         @readCoverageData()
 
@@ -15,7 +15,7 @@ class PythonCoverage
 
     readCoverageData: (path) ->
         if not @data_file.existsSync()
-            @emitter.emit("no-data")
+            @editor.setCoverage()
             return
         package_path = new Directory(
             atom.packages.resolvePackagePath("coverage-python"))
@@ -34,14 +34,14 @@ class PythonCoverage
             full_stderr = stderr.join("")
 
             if status == 0
-                coverage = JSON.parse(full_stdout)
+                @editor.setCoverage(JSON.parse(full_stdout))
             else
-                @emitter.emit("error", "Exited with non-zero status
-                             #{status}\n#{full_stderr}")
+                @editor.error("Exited with non-zero
+                              status #{status}\n#{full_stderr}")
 
         process = new BufferedProcess({
             command: @executable,
-            args: [script.path, @data_file.path, @editor.getPath()],
+            args: [script.path, @data_file.path, @editor.getPath().path],
             stdout: onStdout,
             stderr: onStderr,
             exit: onExit,

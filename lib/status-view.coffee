@@ -5,21 +5,39 @@ class StatusBarView extends View
 
     @content: ->
         @div =>
-            @span "coverage-python"
+            @span "coverage-python", outlet: "formatted"
 
     initialize: ->
+        @coverage = null
         @format = ""
         $(@.element).addClass("coverage")
-        @hide()
+        @clear()
 
-    hide: ->
+    clear: ->
+        @coverage = null
         $(@.element).addClass("coverage-hidden")
 
-    show: ->
+    set: (coverage) ->
+        @coverage = coverage
+        @interpolate()
         $(@.element).removeClass("coverage-hidden")
 
     interpolate: ->
-        $(@.element).find("span").text(@format)
+        if not @coverage
+            return
+        stats = @coverage.statistics()
+        values = {
+            "c": stats.lines.covered,
+            "m": stats.lines.missing,
+            "e": stats.lines.excluded,
+            "C": Math.round(stats.covered * 100),
+            "M": Math.round(stats.missing * 100),
+            "E": Math.round(stats.excluded * 100),
+        }
+        string = @format
+        for key, value of values
+            string = string.replace(new RegExp("%#{key}"), value)
+        @formatted.text(string)
 
     setFormat: (format) ->
         @format = format

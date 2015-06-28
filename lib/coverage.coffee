@@ -11,8 +11,8 @@ class EditorCoverage
         @constructor = constructor
         @instance = new constructor(@)
         @coverage = {
-            covered: [],
-            missing: [],
+            covered: [1, 2],
+            missing: [3],
             excluded: [],
             warning: [],
         }
@@ -26,6 +26,20 @@ class EditorCoverage
 
     getPath: () ->
         return new File(@editor.getPath())
+
+    statistics: ->
+        lines = {
+            total: @coverage.covered.length + @coverage.missing.length + @coverage.excluded.length,
+            covered: @coverage.covered.length,
+            missing: @coverage.missing.length,
+            excluded: @coverage.excluded.length,
+        }
+        return {
+            lines: lines,
+            covered: lines.covered / (lines.total - lines.excluded) or 0,
+            missing: lines.missing / (lines.total - lines.excluded) or 0,
+            excluded: lines.excluded / lines.total or 0,
+        }
 
     setCoverage: (data) ->
         if data
@@ -63,10 +77,9 @@ class Coverage
 
         atom.workspace.observeActivePaneItem (pane) =>
             if pane not instanceof TextEditor or pane.id not of @editors
-                @status.hide()
+                @status.clear()
                 return
-            editor = @editors[pane.id]
-            @status.show()
+            @status.set(@editors[pane.id])
 
     addEditor: (editor) ->
         for scope, constructor of @plugins

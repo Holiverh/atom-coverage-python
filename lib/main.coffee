@@ -1,3 +1,6 @@
+Coverage = require("./coverage.coffee")
+
+
 module.exports =
     config:
         pythonExecutable:
@@ -5,4 +8,4 @@ module.exports =
             default: "python"
             description: "The Python executable used to invoke coverage.py."
     activate: ->
-        console.log("Hello, world!")
+        @coverage = new Coverage();

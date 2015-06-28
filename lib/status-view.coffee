@@ -10,6 +10,13 @@ class StatusBarView extends View
     initialize: ->
         @format = ""
         $(@.element).addClass("coverage")
+        @hide()
+
+    hide: ->
+        $(@.element).addClass("coverage-hidden")
+
+    show: ->
+        $(@.element).removeClass("coverage-hidden")
 
     interpolate: ->
         $(@.element).find("span").text(@format)

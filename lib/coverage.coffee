@@ -11,8 +11,8 @@ class EditorCoverage
         @constructor = constructor
         @instance = new constructor(@)
         @coverage = {
-            covered: [1, 2],
-            missing: [3],
+            covered: [],
+            missing: [],
             excluded: [],
             warning: [],
         }
@@ -43,13 +43,15 @@ class EditorCoverage
 
     setCoverage: (data) ->
         if data
-            {covered, excluded, missing, warning} = data
+            for field in ["covered", "missing", "excluded", "warning"]
+                @coverage[field].length = 0
+                field_data = data[field] or []
+                for line in field_data
+                    @coverage[field].push(line)
         else
             atom.notifications.addInfo(
                 "No coverage data for #{@editor.getPath()}",
-                {
-                    dismissable: true,
-                }
+                {dismissable: true},
             )
 
     error: (error) ->

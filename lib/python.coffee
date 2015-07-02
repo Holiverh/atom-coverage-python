@@ -1,4 +1,5 @@
-{BufferedProcess, Directory, File} = require "atom"
+fs = require("fs")
+{BufferedProcess, Directory, File} = require("atom")
 
 
 class PythonCoverage
@@ -9,6 +10,9 @@ class PythonCoverage
         @data_file = editor.getProjectDirectory().getFile(".coverage")
         @executable = "/home/oliver/miniconda3/envs/zpp/bin/python"
         @readCoverageData()
+        fs.watchFile(@data_file.path, {interval: 1000}, =>
+            @readCoverageData()
+        )
 
     @toString: ->
         return "coverage-python"

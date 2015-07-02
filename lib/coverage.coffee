@@ -48,6 +48,7 @@ class EditorCoverage
                 field_data = data[field] or []
                 for line in field_data
                     @coverage[field].push(line)
+            @emitter.emit("update")
         else
             atom.notifications.addInfo(
                 "No coverage data for #{@editor.getPath()}",

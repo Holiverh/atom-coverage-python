@@ -9,6 +9,7 @@ class StatusBarView extends View
 
     initialize: ->
         @coverage = null
+        @watch = null
         @format = ""
         $(@.element).addClass("coverage")
         @clear()
@@ -18,7 +19,10 @@ class StatusBarView extends View
         $(@.element).addClass("coverage-hidden")
 
     set: (coverage) ->
+        if @watch
+            @watch.dispose()
         @coverage = coverage
+        @watch = @coverage.emitter.on("update", => @interpolate())
         @interpolate()
         $(@.element).removeClass("coverage-hidden")
 

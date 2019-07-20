@@ -8,7 +8,7 @@ class PythonCoverage
         @editor = editor
         @emitter = editor.emitter
         @data_file = editor.getProjectDirectory().getFile(".coverage")
-        @executable = "/home/oliver/miniconda3/envs/zpp/bin/python"
+        @executable = "python"
         @readCoverageData()
         fs.watchFile(@data_file.path, {interval: 1000}, =>
             @readCoverageData()

@@ -45,6 +45,7 @@ def main(argv=None):
     """
     args = parse_args(argv)
     coverage = Coverage(data_file=str(args.coverage[0]))
+    coverage.load()
     _, covered, excluded, missing, _ = coverage.analysis2(str(args.file[0]))
     print(json.dumps({
         "covered": covered,
